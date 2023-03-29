@@ -35,11 +35,12 @@ Functions related to plotting with Matplotlib:
 - **truncate_colormap()**: Truncate colormap to specific range between [0.0, 1.0].
 
 # Remap
-Functions related to remapping gridded data with [CDO](https://code.mpimet.mpg.de/projects/cdo/) 
+Functions related to remapping gridded data with [CDO](https://code.mpimet.mpg.de/projects/cdo/): 
 - **grid_desc()**: Creates a CDO grid description file in which compact grid information is saved in a text file.
 - **grid_desc_netcdf()**: Creates a CDO grid description file in which geographic coordinates of the grid cell centres and edges are saved in a NetCDF file.
 
 # Miscellaneous
+Miscellaneous functions:
 - **aggregation_1d()**: Aggregate one-dimensional array.
 - **aggregation_2d()**: Aggregate two-dimensional array.
 - **nanaverage()**: Compute weighted average from non-NaN-values.
