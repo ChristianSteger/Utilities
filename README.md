@@ -23,7 +23,7 @@ python -m pip install .
 ```
 
 # Grid
-List of available functions:
+Functions related to regular climate model grids:
 - **coord_edges()**: Compute edge coordinates from grid cell centre coordinates. Only works for grid with regular spacing.
 - **grid_frame()**: Compute frame around a grid with a certain offset from the outer boundary.
 - **area_gridcells()**: Compute area of grid cells. Assume plane (Euclidean) geometry.
@@ -31,10 +31,19 @@ List of available functions:
 - **area_gridcells()**: Compute area fractions of grid cells located inside the polygon. Approximate method in which intersecting areas are derived by checking points within the grid cells (one ore multiple sampling). Assume plane (Euclidean) geometry.
 
 # Plot
+Functions related to plotting with Matplotlib:
+- **truncate_colormap()**: Truncate colormap to specific range between [0.0, 1.0].
 
 # Remap
+Functions related to remapping gridded data with [CDO](https://code.mpimet.mpg.de/projects/cdo/) 
+- **grid_desc()**: Creates a CDO grid description file in which compact grid information is saved in a text file.
+- **grid_desc_netcdf()**: Creates a CDO grid description file in which geographic coordinates of the grid cell centres and edges are saved in a NetCDF file.
 
 # Miscellaneous
+- **aggregation_1d()**: Aggregate one-dimensional array.
+- **aggregation_2d()**: Aggregate two-dimensional array.
+- **nanaverage()**: Compute weighted average from non-NaN-values.
+- **bool_mask_extend()**: Extend *True* region in two-dimensional boolean mask by one grid cell in every of the eight directions.
 
 # Support and collaboration
 

@@ -95,7 +95,7 @@ def aggregation_2d(data, agg_num_0, agg_num_1, operation="sum"):
 # -----------------------------------------------------------------------------
 
 def nanaverage(data_in, weights):
-    """Compute weighted average from non-NAN-values.
+    """Compute weighted average from non-NaN-values.
 
     Parameters
     ----------
