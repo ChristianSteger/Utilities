@@ -7,15 +7,9 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+from utilities.plot import truncate_colormap
 
 mpl.style.use("classic")
-
-# Path to folders
-root_IAC = os.getenv("HOME") + "/Dropbox/IAC/"
-
-# Load required functions
-sys.path.append(root_IAC + "Scripts/Functions/")
-from plot import truncate_colormap
 
 ###############################################################################
 # Test function 'truncate_colormap'

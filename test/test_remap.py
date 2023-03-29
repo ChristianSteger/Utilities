@@ -12,22 +12,16 @@ import subprocess
 import cartopy.crs as ccrs
 import glob
 import urllib.request
+from utilities.grid import coord_edges, grid_frame
+from utilities import remap
 
 mpl.style.use("classic")
-
-# Path to folder
-root_IAC = os.getenv("HOME") + "/Dropbox/IAC/"
-path_work = os.getenv("HOME") + "/Desktop/work/"
-
-# Load required functions
-sys.path.append(root_IAC + "Scripts/Functions/")
-import remap
-from grid import coord_edges, grid_frame
 
 ###############################################################################
 # Create working directory and download test NetCDF file
 ###############################################################################
 
+path_work = os.getenv("HOME") + "/Desktop/work/"
 if not os.path.isdir(path_work):
     os.mkdir(path_work)
 

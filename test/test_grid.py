@@ -2,7 +2,6 @@
 # MIT License
 
 # Load modules
-import sys
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -18,16 +17,10 @@ import fiona
 from descartes import PolygonPatch
 from pyproj import CRS, Transformer
 from time import perf_counter
+from utilities.grid import coord_edges, grid_frame, area_gridcells
+from utilities.grid import polygon_inters_exact, polygon_inters_approx
 
 mpl.style.use("classic")
-
-# Path to folders
-root_IAC = os.getenv("HOME") + "/Dropbox/IAC/"
-
-# Load required functions
-sys.path.append(root_IAC + "Scripts/Functions/")
-from grid import coord_edges, grid_frame, area_gridcells
-from grid import polygon_inters_exact, polygon_inters_approx
 
 ###############################################################################
 # Test data

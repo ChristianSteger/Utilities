@@ -2,21 +2,14 @@
 # MIT License
 
 # Load modules
-import sys
 import os
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from utilities.miscellaneous import aggregation_1d, aggregation_2d
+from utilities.miscellaneous import nanaverage, bool_mask_extend
 
 mpl.style.use("classic")
-
-# Paths to folders
-root_IAC = os.getenv("HOME") + "/Dropbox/IAC/"
-
-# Load required functions
-sys.path.append(root_IAC + "Scripts/Functions/")
-from miscellaneous import aggregation_1d, aggregation_2d
-from miscellaneous import nanaverage, bool_mask_extend
 
 ###############################################################################
 # Test function 'aggregation_1d'
