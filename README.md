@@ -1,5 +1,5 @@
 # Utilities
-Various utilities for processing climate model data with Python
+Various utilities for processing climate model data with Python.
 
 # Package dependencies
 
