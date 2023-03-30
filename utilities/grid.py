@@ -178,9 +178,9 @@ def area_gridcells(x_edge, y_edge):
 # -----------------------------------------------------------------------------
 
 def polygon_inters_exact(x_edge, y_edge, polygon, agg_cells=np.array([])):
-    """Compute area fractions of grid cells located inside the polygon.
-    Exact method in which individual grid cells are intersected with polygon.
-    Assume plane (Euclidean) geometry.
+    """Compute area fractions of grid cells located inside a polygon.
+    Exact method in which individual grid cells are intersected with the
+    polygon. Assume plane (Euclidean) geometry.
 
     Parameters
     ----------
@@ -273,7 +273,7 @@ def polygon_inters_exact(x_edge, y_edge, polygon, agg_cells=np.array([])):
 # -----------------------------------------------------------------------------
 
 def polygon_inters_approx(x_edge, y_edge, polygon, num_samp=1):
-    """Compute area fractions of grid cells located inside the polygon.
+    """Compute area fractions of grid cells located inside a polygon.
     Approximate method in which intersecting areas are derived by checking
     points within the grid cells (one ore multiple sampling). Assume plane
     (Euclidean) geometry.
