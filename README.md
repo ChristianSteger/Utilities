@@ -22,7 +22,9 @@ cd Utilities
 python -m pip install .
 ```
 
-# Grid
+# Functions
+
+## Grid
 Functions related to regular climate model grids:
 - **coord_edges()**: Compute edge coordinates from grid cell centre coordinates. Only works for grid with regular spacing.
 - **grid_frame()**: Compute frame around a grid with a certain offset from the outer boundary.
@@ -31,16 +33,16 @@ Functions related to regular climate model grids:
 - **polygon_inters_approx()**: Compute area fractions of grid cells located inside a polygon. Approximate method in which intersecting areas are derived by checking points within the grid cells (one ore multiple sampling). Assume plane (Euclidean) geometry.
 ![Alt text](https://github.com/ChristianSteger/Media/blob/master/Utilities/Grid_polygon_inters.png?raw=true "Output from test_grid.py")
 
-# Plot
+## Plot
 Functions related to plotting with Matplotlib:
 - **truncate_colormap()**: Truncate colormap to specific range between [0.0, 1.0].
 
-# Remap
+## Remap
 Functions related to remapping gridded data with [CDO](https://code.mpimet.mpg.de/projects/cdo/): 
 - **grid_desc()**: Creates a CDO grid description file in which compact grid information is saved in a text file.
 - **grid_desc_netcdf()**: Creates a CDO grid description file in which geographic coordinates of the grid cell centres and edges are saved in a NetCDF file.
 
-# Miscellaneous
+## Miscellaneous
 Miscellaneous functions:
 - **aggregation_1d()**: Aggregate one-dimensional array.
 - **aggregation_2d()**: Aggregate two-dimensional array.
