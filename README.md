@@ -49,6 +49,9 @@ Miscellaneous functions:
 - **nanaverage()**: Compute weighted average from non-NaN-values.
 - **bool_mask_extend()**: Extend *True* region in two-dimensional boolean mask by one grid cell in every of the eight directions.
 
+# Examples
+- **example_remap.py**: Examples for remapping non-regular latitude/longitude to regular latitude/longitude grids with CDO. Requires some example [EURO-CORDEX](https://esgf-data.dkrz.de/search/cordex-dkrz/) NetCDF files.
+
 # Support and collaboration
 
 In case of issues or questions, contact Christian R. Steger (christian.steger@env.ethz.ch). Please report any bugs you find in Utilities. You are welcome to fork this repository to modify the source code.
