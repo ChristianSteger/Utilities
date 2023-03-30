@@ -13,6 +13,7 @@ from shapely.ops import unary_union
 from shapely.ops import transform
 import cartopy.crs as ccrs
 from cartopy.io import shapereader
+import cartopy.feature as cfeature
 import fiona
 from descartes import PolygonPatch
 from pyproj import CRS, Transformer
@@ -194,7 +195,7 @@ area_frac_approx = polygon_inters_approx(x_edge_1d, y_edge_1d,
 # Colormap
 levels = np.arange(0, 1.05, 0.05)
 ticks = np.arange(0, 1.1, 0.1)
-cmap = plt.get_cmap("YlOrRd")
+cmap = plt.get_cmap("YlGnBu")
 norm = mpl.colors.BoundaryNorm(levels, ncolors=cmap.N)
 
 # Plot
@@ -232,7 +233,7 @@ print("Area of the polygon (sum of exact area fractions): "
 # -> Note: computation only exactly correct for Euclidean geometry
 
 # Get borders of certain countries
-countries = ("Switzerland", "Czechia", "Austria", "Liechtenstein")
+countries = ("Switzerland", "Liechtenstein")
 file_shp = shapereader.natural_earth("10m", "cultural", "admin_0_countries")
 ds = fiona.open(file_shp)
 geom_names = [i["properties"]["NAME"] for i in ds]
@@ -265,18 +266,47 @@ area_frac_approx = polygon_inters_approx(rlon_edge, rlat_edge,
                                          shp_geom_trans,
                                          num_samp=5)
 
-# Test plot
-plt.figure(figsize=(12, 8))
-ax = plt.axes()
+# Plot
+map_ext = np.array([5.75, 10.70, 45.65, 47.9])  # [degree]
+rad_earth = 6371.0  # approximate radius of Earth [km]
+dist_x = 2.0 * np.pi * (rad_earth * np.cos(np.deg2rad(map_ext[2:].mean()))) \
+         / 360.0 * (map_ext[1] - map_ext[0])
+dist_y = 2.0 * np.pi * rad_earth / 360.0 * (map_ext[3] - map_ext[2])
+fig = plt.figure(figsize=(10.0 + 0.3, 10.0 * (dist_y / dist_x)))
+gs = gridspec.GridSpec(1, 2, left=0.1, bottom=0.1, right=0.9, top=0.9,
+                       hspace=0.05, wspace=0.05, width_ratios=[1, 0.03])
+ax = plt.subplot(gs[0], projection=ccrs.PlateCarree())
+ax.set_facecolor("lightgrey")
 data_plot = np.ma.masked_where(area_frac_exact == 0.0, area_frac_exact)
 # data_plot = np.ma.masked_where(area_frac_approx == 0.0, area_frac_approx)
-plt.pcolormesh(rlon_edge, rlat_edge, data_plot, cmap=cmap, norm=norm)
-plt.colorbar()
+plt.pcolormesh(rlon_edge, rlat_edge, data_plot, cmap=cmap, norm=norm,
+               transform=crs_rot_pole)
+bord_10m = cfeature.NaturalEarthFeature("cultural",
+                                        "admin_0_boundary_lines_land",
+                                        "10m",
+                                        edgecolor="black",
+                                        facecolor="none", zorder=1)
+ax.add_feature(bord_10m)
+gl = ax.gridlines(crs=ccrs.PlateCarree(),
+                  xlocs=np.arange(0.0, 90.0, 0.5),
+                  ylocs=np.arange(0.0, 90.0, 0.5),
+                  linewidth=1, color="None", alpha=1.0, linestyle=":",
+                  draw_labels=True)
+gl.top_labels = False
+gl.right_labels = False
+ax.set_aspect("auto")
 poly_plot = PolygonPatch(shp_geom_trans, facecolor="none", edgecolor="black",
-                         lw=2.5)
+                         lw=2.5, transform=crs_rot_pole)
 ax.add_patch(poly_plot)
-plt.axis([shp_geom_trans.bounds[0] - 0.2, shp_geom_trans.bounds[2] + 0.2,
-          shp_geom_trans.bounds[1] - 0.2, shp_geom_trans.bounds[3] + 0.2])
+ax.set_extent(map_ext, crs=ccrs.PlateCarree())
+plt.title("Grid cell fraction within polygon [-]", fontsize=12,
+          fontweight="bold", y=1.01)
+ax = plt.subplot(gs[1])
+cb = mpl.colorbar.ColorbarBase(ax, cmap=cmap, norm=norm,
+                               ticks=ticks, orientation="vertical")
+# fig.savefig(os.getenv("HOME") + "/Desktop/Grid_polygon_inters.png", dpi=300,
+#             bbox_inches="tight")
+# plt.close(fig)
 
 # Check equality of different processing
 area_frac_dp = \
