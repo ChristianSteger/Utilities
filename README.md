@@ -1,5 +1,5 @@
 # Utilities
-Various utilities for processing climate model data with Python.
+Various utilities for processing and plotting climate model data with Python. *Grid* and *Remap* functions are designed for model output on a regular horizontal grid (rotated latitude/longitude or map projection).
 
 # Package dependencies
 
