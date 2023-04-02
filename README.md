@@ -5,6 +5,7 @@ Various utilities for processing and plotting climate model data with Python. *G
 
 The following Python packages are required to run Utilities: NumPy, Shapely, Matplotlib, netCDF4.
 Running the tests requires the additional packages: Xarray, descartes, Fiona, pyproj, cartopy.
+The *Remap* functions require [CDO](https://code.mpimet.mpg.de/projects/cdo/) to be installed and to be available in the terminal.
 
 # Installation
 
