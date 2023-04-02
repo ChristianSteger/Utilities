@@ -31,6 +31,7 @@ Functions related to regular climate model grids:
 - **area_gridcells()**: Compute area of grid cells. Assume plane (Euclidean) geometry.
 - **polygon_inters_exact()**: "Compute area fractions of grid cells located inside a polygon. Exact method in which individual grid cells are intersected with the polygon. Assume plane (Euclidean) geometry.
 - **polygon_inters_approx()**: Compute area fractions of grid cells located inside a polygon. Approximate method in which intersecting areas are derived by checking points within the grid cells (one ore multiple sampling). Assume plane (Euclidean) geometry.
+- **polygon_rectangular()**: Create rectangular shapely polygon with specified verticies spacing.
 ![Alt text](https://github.com/ChristianSteger/Media/blob/master/Utilities/Grid_polygon_inters.png?raw=true "Output from test_grid.py")
 
 ## Plot
