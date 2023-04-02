@@ -20,6 +20,7 @@ from pyproj import CRS, Transformer
 from time import perf_counter
 from utilities.grid import coord_edges, grid_frame, area_gridcells
 from utilities.grid import polygon_inters_exact, polygon_inters_approx
+from utilities.grid import polygon_rectangular
 
 mpl.style.use("classic")
 
@@ -332,3 +333,26 @@ print("Elapsed time: %.2f" % (perf_counter() - t_beg) + " s")
 t_beg = perf_counter()
 af_2 = polygon_inters_approx(rlon_edge, rlat_edge, shp_geom_trans, num_samp=5)
 print("Elapsed time: %.2f" % (perf_counter() - t_beg) + " s")
+
+###############################################################################
+# Test function 'polygon_rectangular'
+###############################################################################
+
+box = (1.0, 2.0, 6.0, 5.0)
+spacing = 0.25
+polygon = polygon_rectangular(box, spacing)
+
+# Plot
+plt.figure()
+ax = plt.axes()
+x_corn = [box[0], box[2], box[2], box[0]]
+y_corn = [box[1], box[1], box[3], box[3]]
+plt.scatter(x_corn, y_corn, s=80, color="red")
+poly_plot = PolygonPatch(polygon, facecolor="none",  edgecolor="blue",
+                         alpha=0.2, lw=2.0)
+x_poly, y_poly = polygon.exterior.coords.xy
+plt.scatter(np.array(x_poly), np.array(y_poly), s=30, color="blue")
+ax.add_patch(poly_plot)
+coord_min = np.minimum(box[0], box[1]) - 0.3
+coord_max = np.maximum(box[2], box[3]) + 0.3
+plt.axis([coord_min, coord_max, coord_min, coord_max])

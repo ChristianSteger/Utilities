@@ -338,3 +338,54 @@ def polygon_inters_approx(x_edge, y_edge, polygon, num_samp=1):
             / (num_samp ** 2)
 
     return area_frac
+
+
+# -----------------------------------------------------------------------------
+
+def polygon_rectangular(box, spacing=0.01):
+    """Create rectangular shapely polygon with specified verticies spacing.
+
+    Parameters
+    ----------
+    box: tuple
+        Tuple with four entries (x_min, y_min, x_max, y_max) defining extent
+        of rectangular polygon [arbitrary]
+
+    spacing: int, optional
+        Verticies spacing (approximate) [arbitrary]
+
+    Returns
+    -------
+    polygon: shapely.geometry.polygon.Polygon
+        Shapely polygon [arbitrary]"""
+
+    # Check input arguments
+    if ((not isinstance(box, tuple)) or (len(box) != 4)
+            or (not all([isinstance(i, float) for i in box]))):
+        raise TypeError("'box' has to be a tuple of four floats")
+    if (box[0] >= box[2]) or (box[1] >= box[3]):
+        raise ValueError("Invalid definition of rectangular polygon")
+    if not isinstance(spacing, float):
+        raise TypeError("'spacing' has to be a float")
+
+    # Intersect grid cells with polygon
+    num_x = round((box[2] - box[0]) / spacing) + 1
+    if (num_x < 2):
+        print("Warning: Invalid number of vertices in x-direction. Reset to 2")
+        num_x = 2
+    num_y = round((box[3] - box[1]) / spacing) + 1
+    if (num_y < 2):
+        print("Warning: Invalid number of vertices in y-direction. Reset to 2")
+        num_y = 2
+
+    x = np.hstack((np.linspace(box[0], box[2], num_x)[:-1],
+                   np.repeat(box[2], num_y)[:-1],
+                   np.linspace(box[2], box[0], num_x)[:-1],
+                   np.repeat(box[0], num_y)[:-1]))
+
+    y = np.hstack((np.repeat(box[1], num_x)[:-1],
+                   np.linspace(box[1], box[3], num_y)[:-1],
+                   np.repeat(box[3], num_x)[:-1],
+                   np.linspace(box[3], box[1], num_y)[:-1]))
+
+    return Polygon(zip(x, y))
