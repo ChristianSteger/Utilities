@@ -10,35 +10,40 @@ import shapely.vectorized
 
 # -----------------------------------------------------------------------------
 
-def coord_edges(x_cent, y_cent):
+def coord_edges(x_cent, y_cent, atol=1e-05):
     """Compute edge coordinates from grid cell centre coordinates. Only works
     for grid with regular spacing.
 
     Parameters
     ----------
-    x_cent: ndarray
+    x_cent : ndarray of float/double
         Array (one-dimensional) with x-coordinates of grid cell centres
         [arbitrary]
-    y_cent: ndarray
+    y_cent : ndarray of float/double
         Array (one-dimensional) with y-coordinates of grid cell centres
+        [arbitrary]
+    atol : float
+        Absolute tolerance parameter used to check if grid spacing is regular
         [arbitrary]
 
     Returns
     -------
-    x_edge: ndarray
+    x_edge : ndarray
         Array (one-dimensional) with x-coordinates of grid cell edges
         [arbitrary]
-    y_edge: ndarray
+    y_edge : ndarray
         Array (one-dimensional) with y-coordinates of grid cell edges
         [arbitrary]"""
 
     # Check input arguments
     if len(x_cent.shape) != 1 or len(y_cent.shape) != 1:
         raise TypeError("Input arrays must be one-dimensional")
+    if ((not issubclass(x_cent.dtype.type, np.floating))
+            or (not issubclass(y_cent.dtype.type, np.floating))):
+        raise TypeError("Input arrays must be of floating type")
     if (np.any(np.diff(np.sign(np.diff(x_cent))) != 0) or
             np.any(np.diff(np.sign(np.diff(y_cent))) != 0)):
         raise TypeError("Input arrays are not monotonically in- or decreasing")
-    atol = 1e-05  # absolute tolerance
     if np.any(np.abs(np.diff(np.diff(x_cent))) > atol):
         raise ValueError("Irregular grid spacing in x-direction")
     if np.any(np.abs(np.diff(np.diff(y_cent))) > atol):
@@ -65,20 +70,20 @@ def grid_frame(x_edge, y_edge, offset=0):
 
     Parameters
     ----------
-    x_edge: ndarray
+    x_edge : ndarray
         Array (one- or two-dimensional) with x-coordinates of grid cell edges
         [arbitrary]
-    y_edge: ndarray
+    y_edge : ndarray
         Array (one- or two-dimensional) with y-coordinates of grid cell edges
         [arbitrary]
-    offset: int
+    offset : int
         offset value from outer boundary [-]
 
     Returns
     -------
-    x_frame: ndarray
+    x_frame : ndarray
         Array (one-dimensional) with x-coordinates of frame [arbitrary]
-    y_frame: ndarray
+    y_frame : ndarray
         Array (one-dimensional) with y-coordinates of frame [arbitrary]"""
 
     # Check input arguments
@@ -132,16 +137,16 @@ def area_gridcells(x_edge, y_edge):
 
     Parameters
     ----------
-    x_edge: ndarray
+    x_edge : ndarray
         Array (one- or two-dimensional) with x-coordinates of grid cell edges
         [arbitrary]
-    y_edge: ndarray
+    y_edge : ndarray
         Array (one- or two-dimensional) with y-coordinates of grid cell edges
         [arbitrary]
 
     Returns
     -------
-    area_gc: ndarray
+    area_gc : ndarray
         Array (two-dimensional) with area of grid cells [arbitrary]"""
 
     # Check input arguments
@@ -184,15 +189,15 @@ def polygon_inters_exact(x_edge, y_edge, polygon, agg_cells=np.array([])):
 
     Parameters
     ----------
-    x_edge: ndarray
+    x_edge : ndarray
         Array (two-dimensional) with x-coordinates of grid cell edges
         [arbitrary]
-    y_edge: ndarray
+    y_edge : ndarray
         Array (two-dimensional) with y-coordinates of grid cell edges
         [arbitrary]
-    polygon: shapely.geometry.polygon.Polygon
+    polygon : shapely.geometry.polygon.Polygon
         Shapely polygon [arbitrary]
-    agg_cells: ndarray of int, optional
+    agg_cells : ndarray of int, optional
         Array with decreasing integers. The values determine the
         aggregation of grid cells into blocks for processing, which can
         decrease computational time considerably. Optimal values depend on the
@@ -201,7 +206,7 @@ def polygon_inters_exact(x_edge, y_edge, polygon, agg_cells=np.array([])):
 
     Returns
     -------
-    area_frac: array_like
+    area_frac : array_like
         Array (two-dimensional) with area fractions [-]"""
 
     # Check input arguments
@@ -280,22 +285,22 @@ def polygon_inters_approx(x_edge, y_edge, polygon, num_samp=1):
 
     Parameters
     ----------
-    x_edge: ndarray
+    x_edge : ndarray
         Array (one- or two-dimensional) with x-coordinates of grid cell edges
         [arbitrary]
-    y_edge: ndarray
+    y_edge : ndarray
         Array (one- or two-dimensional) with y-coordinates of grid cell edges
         [arbitrary]
-    polygon: shapely.geometry.polygon.Polygon
+    polygon : shapely.geometry.polygon.Polygon
         Shapely polygon [arbitrary]
-    num_samp: int, optional
+    num_samp : int, optional
         Number of evenly distributed point-samples within a grid cell along
         one dimension. With e.g. 'num_samp = 5', 5 x 5 = 25 point locations are
         checked
 
     Returns
     -------
-    area_frac: ndarray
+    area_frac : ndarray
         Array (two-dimensional) with area fractions [-]"""
 
     # Check input arguments
@@ -347,16 +352,16 @@ def polygon_rectangular(box, spacing=0.01):
 
     Parameters
     ----------
-    box: tuple
+    box : tuple
         Tuple with four entries (x_min, y_min, x_max, y_max) defining extent
         of rectangular polygon [arbitrary]
 
-    spacing: int, optional
+    spacing : int, optional
         Verticies spacing (approximate) [arbitrary]
 
     Returns
     -------
-    polygon: shapely.geometry.polygon.Polygon
+    polygon : shapely.geometry.polygon.Polygon
         Shapely polygon [arbitrary]"""
 
     # Check input arguments
