@@ -15,21 +15,21 @@ def grid_desc(file, gridtype, xsize, ysize, xfirst, yfirst, xinc, yinc,
 
     Parameters
     ----------
-    file: str
+    file : str
         Output name of text file
-    gridtype: str
+    gridtype : str
         Type of grid (lonlat or projection)
-    xsize: int
+    xsize : int
         Size of grid in x-direction
-    ysize: int
+    ysize : int
         Size of grid in y-direction
-    xfirst: float
+    xfirst : float
         x-coordinate of first grid cell's centre
-    yfirst: float
+    yfirst : float
         y-coordinate of first grid cell's centre
-    xinc: float
+    xinc : float
         Grid spacing in x-direction
-    yinc: float
+    yinc : float
         Grid spacing in y-direction
     kwargs : Keyword arguments, optional
         Additional arguments depending on grid
@@ -130,7 +130,7 @@ def grid_desc_netcdf(file, lat_cent, lon_cent, lat_edge, lon_edge):
 
     Parameters
     ----------
-    file: str
+    file : str
         Output name of text file
     lat_cent : array_like
         Array (two-dimensional) with latitudes of grid cell centres [deg]

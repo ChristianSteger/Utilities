@@ -12,16 +12,16 @@ def aggregation_1d(data, agg_num, operation="sum"):
 
     Parameters
     ----------
-    data: ndarray
+    data : ndarray
         Array (one-dimensional) with data [arbitrary]
-    agg_num: int
+    agg_num : int
         Aggregation number [-]
-    operation: str
+    operation : str
         Aggregation operation ("sum" or "mean")
 
     Returns
     -------
-    data_agg: ndarray
+    data_agg : ndarray
         Array (one-dimensional) with aggregated data [arbitrary]"""
 
     # Check input arguments
@@ -55,16 +55,16 @@ def aggregation_2d(data, agg_num_0, agg_num_1, operation="sum"):
     ----------
     data: ndarray
         Array (two-dimensional) with data [arbitrary]
-    agg_num_0: int
+    agg_num_0 : int
         Aggregation number along first dimension [-]
-    agg_num_1: int
+    agg_num_1 : int
         Aggregation number along second dimension [-]
-    operation: str
+    operation : str
         Aggregation operation ("sum" or "mean")
 
     Returns
     -------
-    data_agg: ndarray
+    data_agg : ndarray
         Array (two-dimensional) with aggregated data [arbitrary]"""
 
     # Check input arguments
@@ -99,14 +99,14 @@ def nanaverage(data_in, weights):
 
     Parameters
     ----------
-    data_in: ndarray
+    data_in : ndarray
         Array (n-dimensional) with input data [arbitrary]
-    weights: ndarray
+    weights : ndarray
         Array (n-dimensional) with weights [-]
 
     Returns
     -------
-    data_out: float
+    data_out : float
         Value with weighted average [arbitrary]"""
 
     # Check input arguments
@@ -130,12 +130,12 @@ def bool_mask_extend(mask_in):
 
     Parameters
     ----------
-    mask_in: ndarray of bool
+    mask_in : ndarray of bool
         Array (two-dimensional) with input mask
 
     Returns
     -------
-    mask_in: ndarray of bool
+    mask_in : ndarray of bool
         Array (two-dimensional) with output mask"""
 
     # Check input arguments
