@@ -22,7 +22,7 @@ def coord_edges(x_cent, y_cent, atol=1e-05):
     y_cent : ndarray of float/double
         Array (one-dimensional) with y-coordinates of grid cell centres
         [arbitrary]
-    atol : float
+    atol : float, optional
         Absolute tolerance parameter used to check if grid spacing is regular
         [arbitrary]
 
@@ -76,7 +76,7 @@ def grid_frame(x_edge, y_edge, offset=0):
     y_edge : ndarray
         Array (one- or two-dimensional) with y-coordinates of grid cell edges
         [arbitrary]
-    offset : int
+    offset : int, optional
         offset value from outer boundary [-]
 
     Returns

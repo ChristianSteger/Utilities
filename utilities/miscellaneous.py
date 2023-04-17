@@ -157,3 +157,59 @@ def bool_mask_extend(mask_in):
     mask_out[:-1, 1:] += mask_in[1:, :-1]  # shift down & right
 
     return mask_out > 0
+
+
+# -----------------------------------------------------------------------------
+
+def consecutive_length_max(data, return_range_indices=False):
+    """Compute maximal length of consecutive True values along the first
+    dimension of a three-dimensional array. Optionally return the range (start
+    and stop) indices of this sequence. In case sequences with the maximal
+    length occur multiple times, the indices of the first sequence is returned.
+
+    Parameters
+    ----------
+    data : ndarray of bool
+        Array (three-dimensional) with input data
+    return_range_indices : bool, optional
+        Option to return the range (start and stop) indices of the sequence
+
+    Returns
+    -------
+    length_max : ndarray of int
+        Array (two-dimensional) with maximal length of consecutive True
+        values
+    ind_start : ndarray of int, optional
+        Array (two-dimensional) with start indices of the sequence. Is set to
+        -1 if all values are False.
+    ind_stop : ndarray of int, optional
+        Array (two-dimensional) with stop indices of the sequence. Is set to
+        -1 if all values are False."""
+
+    # Check input arguments
+    if len(data.shape) != 3:
+        raise TypeError("Input arrays must be three-dimensional")
+    if not issubclass(data.dtype.type, np.bool_):
+        raise TypeError("Input arrays must be of boolean type")
+    if not isinstance(return_range_indices, bool):
+        raise TypeError("'return_range_indices' must be of boolean type")
+
+    # Compute maximal consecutive length of True values
+    count = np.zeros(data.shape[1:], dtype=np.int32)
+    length_max = np.zeros(data.shape[1:], dtype=np.int32)
+    ind_stop = np.zeros(data.shape[1:], dtype=np.int32)
+    for i in range(data.shape[0]):
+        count[data[i, :, :]] += 1
+        count[~(data[i, :, :])] = 0
+        mask = (count > length_max)
+        length_max[mask] = count[mask]
+        ind_stop[mask] = i
+    ind_start = ind_stop - length_max + 1
+    mask = (length_max == 0)
+    ind_start[mask] = -1
+    ind_stop[mask] = -1
+
+    if not return_range_indices:
+        return length_max
+    else:
+        return length_max, ind_start, ind_stop

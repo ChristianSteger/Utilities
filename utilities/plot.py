@@ -15,11 +15,11 @@ def truncate_colormap(cmap, val_min=0.0, val_max=1.0, num=100):
     ----------
     cmap : matplotlib.colors.LinearSegmentedColormap
         Input colormap
-    val_min : float
+    val_min : float, optional
         Lower truncation value [0.0, 1.0] [-]
-    val_max : float
+    val_max : float, optional
         Upper truncation value [0.0, 1.0] [-]
-    num : int
+    num : int, optional
         Number of levels [-]
 
     Returns

@@ -8,6 +8,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from utilities.miscellaneous import aggregation_1d, aggregation_2d
 from utilities.miscellaneous import nanaverage, bool_mask_extend
+from utilities.miscellaneous import consecutive_length_max
 
 mpl.style.use("classic")
 
@@ -111,3 +112,75 @@ data_plot += mask_in.astype(np.int8)
 
 plt.figure()
 plt.pcolormesh(data_plot)
+
+###############################################################################
+# Test function 'consecutive_length_max'
+###############################################################################
+
+# -----------------------------------------------------------------------------
+# First example
+# -----------------------------------------------------------------------------
+
+data = np.ones((17, 7, 5), dtype=bool)
+data[:, 4, 0] = True  # (17)
+data[:, 4, 1] = False  # (0)
+data[:, 4, 2] = [True, True, True, False, False, True, True, True, False,
+                 False, True, True, True, True, True, True, True]  # (7)
+data[:, 4, 3] = [True, True, True, True, False, True, True, True, True,
+                 False, True, True, False, True, True, False, False]  # (4)
+data[:, 4, 4] = [False, False, False, True, True, False, False, True, True,
+                 True, False, True, False, True, True, False, False]  # (3)
+length_max = consecutive_length_max(data)
+print(length_max[4, 0])
+print(length_max[4, 1])
+print(length_max[4, 2])
+print(length_max[4, 3])
+print(length_max[4, 4])
+
+# -----------------------------------------------------------------------------
+# Second example
+# -----------------------------------------------------------------------------
+
+data = np.ones((13, 5, 11), dtype=bool)
+data[:, 0, 0] = [True] * 13  # (13, 0, 12)
+data[:, 0, 1] = [False] * 13  # (0, -1, -1)
+data[:, 0, 2] = [True, True, True, False, False, True, True, True, True,
+                 False, False, True, True]  # (4, 5, 8)
+data[:, 0, 3] = [False, True, True, True, False, True, False, True, True,
+                 True, False, False, False]  # (3, 1, 3)
+data[:, 0, 4] = [True, False, True, True, True, True, True, True, True,
+                 False, True, False, False]  # (7, 2, 8)
+data[:, 0, 5] = [False, False, False, True, True, False, True, False, True,
+                 False, True, True, True]  # (3, 10, 12)
+
+length_max = consecutive_length_max(data)
+length_max, ind_start, ind_stop \
+    = consecutive_length_max(data, return_range_indices=True)
+print(length_max[0, 0], ind_start[0, 0], ind_stop[0, 0])
+print(length_max[0, 1], ind_start[0, 1], ind_stop[0, 1])
+print(length_max[0, 2], ind_start[0, 2], ind_stop[0, 2])
+print(length_max[0, 3], ind_start[0, 3], ind_stop[0, 3])
+print(length_max[0, 4], ind_start[0, 4], ind_stop[0, 4])
+print(length_max[0, 5], ind_start[0, 5], ind_stop[0, 5])
+
+# -----------------------------------------------------------------------------
+# Third example
+# -----------------------------------------------------------------------------
+
+num = 3547
+data = np.random.choice([True, True, True, True, True, False], num) \
+    .reshape(num, 1, 1)
+# data[:133] = True
+# data[-277:] = True
+
+length_max, ind_start, ind_stop \
+    = consecutive_length_max(data, return_range_indices=True)
+print(length_max[0][0], ind_start[0][0], ind_stop[0][0])
+print(np.all(data[ind_start[0][0]:(ind_stop[0][0] + 1), 0, 0]))
+
+data_add = np.hstack(([False], data[:, 0, 0], [False])).astype(int)
+indices_start, = np.where(np.diff(data_add) > 0)
+indices_end, = np.where(np.diff(data_add) < 0)
+lengths_max = indices_end - indices_start
+ind = np.argmax(lengths_max)
+print(lengths_max[ind], indices_start[ind], indices_end[ind] - 1)
