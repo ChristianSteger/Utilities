@@ -164,8 +164,8 @@ def bool_mask_extend(mask_in):
 def consecutive_length_max(data, return_range_indices=False):
     """Compute maximal length of consecutive True values along the first
     dimension of a three-dimensional array. Optionally return the range (start
-    and stop) indices of this sequence. In case sequences with the maximal
-    length occur multiple times, the indices of the first sequence is returned.
+    and stop) indices of this sequence. In case sequence with the maximal
+    length occurs multiple times, the indices of the first sequence is returned.
 
     Parameters
     ----------

@@ -50,7 +50,7 @@ Miscellaneous functions:
 - **aggregation_2d()**: Aggregate two-dimensional array.
 - **nanaverage()**: Compute weighted average from non-NaN-values.
 - **bool_mask_extend()**: Extend *True* region in two-dimensional boolean mask by one grid cell in every of the eight directions.
-- **consecutive_length_max()**: Compute maximal length of consecutive *True* values along the first dimension of a three-dimensional array. Optionally return the range (start and stop) indices of this sequence. In case sequences with the maximal length occur multiple times, the indices of the first sequence is returned.
+- **consecutive_length_max()**: Compute maximal length of consecutive *True* values along the first dimension of a three-dimensional array. Optionally return the range (start and stop) indices of this sequence. In case sequence with the maximal length occurs multiple times, the indices of the first sequence is returned.
 
 # Examples
 - **example_remap.py**: Examples for remapping non-regular latitude/longitude to regular latitude/longitude grids with CDO. Requires some example [EURO-CORDEX](https://esgf-data.dkrz.de/search/cordex-dkrz/) NetCDF files.
