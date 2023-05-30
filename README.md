@@ -3,7 +3,7 @@ Various utilities for processing and plotting climate model data with Python. *G
 
 # Package dependencies
 
-The following Python packages are required to run Utilities: NumPy, Matplotlib and Shapely.
+The following Python packages are required to run Utilities: NumPy, Matplotlib, Shapely and netcdf4.
 Running the example and the tests requires the additional packages Xarray, pyproj, cartopy, descartes and Fiona.
 The *Remap* functions require [CDO](https://code.mpimet.mpg.de/projects/cdo/) to be installed and to be available in the terminal.
 
@@ -13,7 +13,7 @@ First, ensure that all required Python packages are available in the environment
 The essential packages are installed with
 
 ```bash
-conda install -c conda-forge numpy matplotlib shapely
+conda install -c conda-forge numpy matplotlib shapely netcdf4
 ```
 
 and the optional ones with
