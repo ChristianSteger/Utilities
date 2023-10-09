@@ -15,12 +15,12 @@ import cartopy.crs as ccrs
 from cartopy.io import shapereader
 import cartopy.feature as cfeature
 import fiona
-from descartes import PolygonPatch
 from pyproj import CRS, Transformer
 from time import perf_counter
 from utilities.grid import coord_edges, grid_frame, area_gridcells
 from utilities.grid import polygon_inters_exact, polygon_inters_approx
 from utilities.grid import polygon_rectangular
+from utilities.plot import polygon2patch
 
 mpl.style.use("classic")
 
@@ -81,9 +81,9 @@ x_edge_2d, y_edge_2d = np.meshgrid(x_edge_1d, y_edge_1d)
 # Plot
 plt.figure()
 ax = plt.axes()
-plt.vlines(x=x_edge_1d, ymin=y_edge_1d.min(), ymax=y_edge_1d.max(),
+plt.vlines(x=x_edge_1d, ymin=np.min(y_edge_1d), ymax=np.max(y_edge_1d),
            color="gray", lw=0.8)
-plt.hlines(y=y_edge_1d, xmin=x_edge_1d.min(), xmax=x_edge_1d.max(),
+plt.hlines(y=y_edge_1d, xmin=np.min(x_edge_1d), xmax=np.max(x_edge_1d),
            color="gray", lw=0.8)
 for i in [0, 2, 5]:
     x_frame, y_frame = grid_frame(x_edge_1d, y_edge_1d, offset=i)
@@ -206,17 +206,17 @@ gs = gridspec.GridSpec(1, 3, left=0.1, bottom=0.1, right=0.9, top=0.9,
 ax = plt.subplot(gs[0, 0])
 data_plot = np.ma.masked_where(area_frac_exact == 0.0, area_frac_exact)
 plt.pcolormesh(data_plot, cmap=cmap, norm=norm)
-poly_plot = PolygonPatch(polygon, facecolor="none",  edgecolor="black",
-                         alpha=1.0, lw=2.0)
-ax.add_patch(poly_plot)
+poly_plot = polygon2patch(polygon, facecolor="none",  edgecolor="black",
+                          alpha=1.0, lw=2.0)
+ax.add_collection(poly_plot)
 plt.title("Exact method (area: %.3f" % np.sum(area_frac_exact) + ")",
           fontsize=12, fontweight="bold")
 ax = plt.subplot(gs[0, 1])
 data_plot = np.ma.masked_where(area_frac_approx == 0.0, area_frac_approx)
 plt.pcolormesh(data_plot, cmap=cmap, norm=norm)
-poly_plot = PolygonPatch(polygon, facecolor="none",  edgecolor="black",
-                         alpha=1.0, lw=2.0)
-ax.add_patch(poly_plot)
+poly_plot = polygon2patch(polygon, facecolor="none",  edgecolor="black",
+                          alpha=1.0, lw=2.0)
+ax.add_collection(poly_plot)
 plt.title("Approximate method (area: %.3f" % np.sum(area_frac_approx) + ")",
           fontsize=12, fontweight="bold")
 ax = plt.subplot(gs[0, 2])
@@ -248,9 +248,9 @@ ds.close()
 # Plot country borders
 plt.figure()
 ax = plt.axes()
-poly_plot = PolygonPatch(shp_geom, facecolor="blue", edgecolor="black",
-                         alpha=0.5)
-ax.add_patch(poly_plot)
+poly_plot = polygon2patch(shp_geom, facecolor="blue", edgecolor="black",
+                          alpha=0.5)
+ax.add_collection(poly_plot)
 ax.autoscale_view()
 
 # Transform polygon boundaries
@@ -296,18 +296,15 @@ gl = ax.gridlines(crs=ccrs.PlateCarree(),
 gl.top_labels = False
 gl.right_labels = False
 ax.set_aspect("auto")
-poly_plot = PolygonPatch(shp_geom_trans, facecolor="none", edgecolor="black",
-                         lw=2.5, transform=crs_rot_pole)
-ax.add_patch(poly_plot)
+poly_plot = polygon2patch(shp_geom_trans, facecolor="none", edgecolor="red",
+                          lw=2.5, transform=crs_rot_pole)
+ax.add_collection(poly_plot)
 ax.set_extent(map_ext, crs=ccrs.PlateCarree())
 plt.title("Grid cell fraction within polygon [-]", fontsize=12,
           fontweight="bold", y=1.01)
 ax = plt.subplot(gs[1])
 cb = mpl.colorbar.ColorbarBase(ax, cmap=cmap, norm=norm,
                                ticks=ticks, orientation="vertical")
-# fig.savefig(os.getenv("HOME") + "/Desktop/Grid_polygon_inters.png", dpi=300,
-#             bbox_inches="tight")
-# plt.close(fig)
 
 # Check equality of different processing
 area_frac_dp = \
@@ -348,11 +345,11 @@ ax = plt.axes()
 x_corn = [box[0], box[2], box[2], box[0]]
 y_corn = [box[1], box[1], box[3], box[3]]
 plt.scatter(x_corn, y_corn, s=80, color="red")
-poly_plot = PolygonPatch(polygon, facecolor="none",  edgecolor="blue",
-                         alpha=0.2, lw=2.0)
+poly_plot = polygon2patch(polygon, facecolor="none",  edgecolor="blue",
+                          alpha=0.2, lw=2.0)
+ax.add_collection(poly_plot)
 x_poly, y_poly = polygon.exterior.coords.xy
 plt.scatter(np.array(x_poly), np.array(y_poly), s=30, color="blue")
-ax.add_patch(poly_plot)
 coord_min = np.minimum(box[0], box[1]) - 0.3
 coord_max = np.maximum(box[2], box[3]) + 0.3
 plt.axis([coord_min, coord_max, coord_min, coord_max])
