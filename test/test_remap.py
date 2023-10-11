@@ -10,8 +10,8 @@ import matplotlib as mpl
 import xarray as xr
 import subprocess
 import cartopy.crs as ccrs
-import glob
 import urllib.request
+import shutil
 from utilities.grid import coord_edges, grid_frame
 from utilities import remap
 
@@ -108,12 +108,6 @@ ds.close()
 dev_abs_max = np.abs(data_1 - data_0).max()
 print("Maximal absolute deviation: %.10f" % dev_abs_max)
 
-# Remove files
-files_rm = glob.glob(path_work + "*geopotential_lonlat*.nc") \
-           + glob.glob(path_work + "grid_target_lonlat.*")
-for i in files_rm:
-    os.remove(i)
-
 # -----------------------------------------------------------------------------
 # Target grid: rotated latitude/longitude grid
 # -----------------------------------------------------------------------------
@@ -159,12 +153,6 @@ for i in ("remapbil", "remapcon"):
     tf = path_work + sf.split("/")[-1][:-3] + "_rot_" + i + ".nc"
     subprocess.call(cmd + " " + sf + " " + tf, shell=True)
 
-# Remove files
-files_rm = glob.glob(path_work + "*geopotential_rot*.nc") \
-           + [path_work + "grid_target_rot.txt"]
-for i in files_rm:
-    os.remove(i)
-
 # -----------------------------------------------------------------------------
 # Target grid: map projection
 # -----------------------------------------------------------------------------
@@ -207,8 +195,8 @@ for i in ("remapbil", "remapcon"):
     tf = path_work + sf.split("/")[-1][:-3] + "_proj_" + i + ".nc"
     subprocess.call(cmd + " " + sf + " " + tf, shell=True)
 
-# Remove files
-files_rm = glob.glob(path_work + "*geopotential_proj*.nc") \
-           + [path_work + "grid_target_proj.txt"]
-for i in files_rm:
-    os.remove(i)
+###############################################################################
+# Remove working directory
+###############################################################################
+
+shutil.rmtree(path_work)

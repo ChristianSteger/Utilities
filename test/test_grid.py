@@ -229,7 +229,7 @@ print("Area of the polygon (sum of exact area fractions): "
       + "%.5f" % np.sum(area_frac_exact))
 
 # -----------------------------------------------------------------------------
-# Test with real data
+# Test with real data (polygon)
 # -----------------------------------------------------------------------------
 # -> Note: computation only exactly correct for Euclidean geometry
 
@@ -238,42 +238,30 @@ countries = ("Switzerland", "Liechtenstein")
 file_shp = shapereader.natural_earth("10m", "cultural", "admin_0_countries")
 ds = fiona.open(file_shp)
 geom_names = [i["properties"]["NAME"] for i in ds]
-shp_geom = unary_union([shape(ds[geom_names.index(i)]["geometry"])
-                        for i in countries])  # merge all polygons
+polygon = unary_union([shape(ds[geom_names.index(i)]["geometry"])
+                       for i in countries])  # merge all polygons
 crs_poly = CRS.from_string(ds.crs["init"])
 ds.close()
 # shp_geom = Polygon(shp_geom.exterior.simplify(0.1, preserve_topology=True))
 # # optionally: simplify polygon
 
-# Plot country borders
-plt.figure()
-ax = plt.axes()
-poly_plot = polygon2patch(shp_geom, facecolor="blue", edgecolor="black",
-                          alpha=0.5)
-ax.add_collection(poly_plot)
-ax.autoscale_view()
-
 # Transform polygon boundaries
 project = Transformer.from_crs(crs_poly, CRS.from_user_input(crs_rot_pole),
                                always_xy=True).transform
-shp_geom_trans = transform(project, shp_geom)
+polygon_rot = transform(project, polygon)
 
 # Compute grid cell area fractions
 rlon_edge, rlat_edge = coord_edges(rlon_cent, rlat_cent)
 area_frac_exact = polygon_inters_exact(*np.meshgrid(rlon_edge, rlat_edge),
-                                       shp_geom_trans,
+                                       polygon_rot,
                                        agg_cells=np.array([10, 5, 2]))
 area_frac_approx = polygon_inters_approx(rlon_edge, rlat_edge,
-                                         shp_geom_trans,
+                                         polygon_rot,
                                          num_samp=5)
 
 # Plot
 map_ext = np.array([5.75, 10.70, 45.65, 47.9])  # [degree]
-rad_earth = 6371.0  # approximate radius of Earth [km]
-dist_x = 2.0 * np.pi * (rad_earth * np.cos(np.deg2rad(map_ext[2:].mean()))) \
-         / 360.0 * (map_ext[1] - map_ext[0])
-dist_y = 2.0 * np.pi * rad_earth / 360.0 * (map_ext[3] - map_ext[2])
-fig = plt.figure(figsize=(10.0 + 0.3, 10.0 * (dist_y / dist_x)))
+fig = plt.figure(figsize=(10.3, 6.6))
 gs = gridspec.GridSpec(1, 2, left=0.1, bottom=0.1, right=0.9, top=0.9,
                        hspace=0.05, wspace=0.05, width_ratios=[1, 0.03])
 ax = plt.subplot(gs[0], projection=ccrs.PlateCarree())
@@ -282,54 +270,107 @@ data_plot = np.ma.masked_where(area_frac_exact == 0.0, area_frac_exact)
 # data_plot = np.ma.masked_where(area_frac_approx == 0.0, area_frac_approx)
 plt.pcolormesh(rlon_edge, rlat_edge, data_plot, cmap=cmap, norm=norm,
                transform=crs_rot_pole)
-bord_10m = cfeature.NaturalEarthFeature("cultural",
-                                        "admin_0_boundary_lines_land",
-                                        "10m",
-                                        edgecolor="black",
-                                        facecolor="none", zorder=1)
-ax.add_feature(bord_10m)
-gl = ax.gridlines(crs=ccrs.PlateCarree(),
-                  xlocs=np.arange(0.0, 90.0, 0.5),
-                  ylocs=np.arange(0.0, 90.0, 0.5),
-                  linewidth=1, color="None", alpha=1.0, linestyle=":",
-                  draw_labels=True)
-gl.top_labels = False
-gl.right_labels = False
+ax.add_feature(cfeature.COASTLINE, edgecolor="black", ls="-", lw=1.0)
+ax.add_feature(cfeature.BORDERS, edgecolor="black", ls="-", lw=1.0)
 ax.set_aspect("auto")
-poly_plot = polygon2patch(shp_geom_trans, facecolor="none", edgecolor="red",
+poly_plot = polygon2patch(polygon_rot, facecolor="none", edgecolor="red",
                           lw=2.5, transform=crs_rot_pole)
 ax.add_collection(poly_plot)
 ax.set_extent(map_ext, crs=ccrs.PlateCarree())
-plt.title("Grid cell fraction within polygon [-]", fontsize=12,
+plt.title("Grid cell fraction within boundary [-]", fontsize=12,
           fontweight="bold", y=1.01)
 ax = plt.subplot(gs[1])
 cb = mpl.colorbar.ColorbarBase(ax, cmap=cmap, norm=norm,
                                ticks=ticks, orientation="vertical")
 
 # Check equality of different processing
+agg_cells = (np.array([]), np.array([2]), np.array([5, 2]),
+             np.array([10, 5, 2]), np.array([20, 10, 5, 2]))
 area_frac_dp = \
-    [polygon_inters_exact(*np.meshgrid(rlon_edge, rlat_edge), shp_geom_trans),
-     polygon_inters_exact(*np.meshgrid(rlon_edge, rlat_edge), shp_geom_trans,
-                          agg_cells=np.array([2])),
-     polygon_inters_exact(*np.meshgrid(rlon_edge, rlat_edge), shp_geom_trans,
-                          agg_cells=np.array([5, 2])),
-     polygon_inters_exact(*np.meshgrid(rlon_edge, rlat_edge), shp_geom_trans,
-                          agg_cells=np.array([10, 5, 2]))]
+    [polygon_inters_exact(*np.meshgrid(rlon_edge, rlat_edge), polygon_rot,
+                          agg_cells=i) for i in agg_cells]
 print(np.all(np.diff(np.concatenate([i[np.newaxis, :, :]
                                      for i in area_frac_dp],
                                     axis=0), axis=0) == 0.0))
 
 # Check performance
 t_beg = perf_counter()
-af_0 = polygon_inters_exact(*np.meshgrid(rlon_edge, rlat_edge), shp_geom_trans)
+af_0 = polygon_inters_exact(*np.meshgrid(rlon_edge, rlat_edge), polygon_rot)
 print("Elapsed time: %.2f" % (perf_counter() - t_beg) + " s")
 t_beg = perf_counter()
 af_1 = polygon_inters_exact(*np.meshgrid(rlon_edge, rlat_edge),
-                            shp_geom_trans, agg_cells=np.array([10, 5, 2]))
+                            polygon_rot, agg_cells=np.array([20, 10, 5, 2]))
 print("Elapsed time: %.2f" % (perf_counter() - t_beg) + " s")
 t_beg = perf_counter()
-af_2 = polygon_inters_approx(rlon_edge, rlat_edge, shp_geom_trans, num_samp=5)
+af_2 = polygon_inters_approx(rlon_edge, rlat_edge, polygon_rot, num_samp=5)
 print("Elapsed time: %.2f" % (perf_counter() - t_beg) + " s")
+
+# -----------------------------------------------------------------------------
+# Test with real data (multipolygon with holes in polygon(s))
+# -----------------------------------------------------------------------------
+
+# Get borders of Italy (-> polygon has hole)
+file_shp = shapereader.natural_earth("10m", "cultural", "admin_0_countries")
+ds = fiona.open(file_shp)
+geom_names = [i["properties"]["NAME"] for i in ds]
+polygon_it = shape(ds[geom_names.index("Italy")]["geometry"])
+ds.close()
+
+# Check multipolygon characteristics
+print(polygon_it.geom_type)
+polygon_wh = [len(i.interiors) for ind_i, i in enumerate(polygon_it.geoms)
+              if len(i.interiors) > 0]
+print(polygon_wh)  # -> San Marino and Vatican City
+
+# Construct grid
+extent = (6.0, 20.0, 35.0, 48.0)
+spac = 0.02  # [degree]
+num_lon = int((extent[1] - extent[0]) / spac) + 1
+lon_edge = np.linspace(extent[0], extent[1], num_lon)
+num_lat = int((extent[3] - extent[2]) / spac) + 1
+lat_edge = np.linspace(extent[2], extent[3], num_lat)
+
+# Compute grid cell area fractions
+t_beg = perf_counter()
+area_frac_exact = polygon_inters_exact(*np.meshgrid(lon_edge, lat_edge),
+                                       polygon_it,
+                                       agg_cells=np.array([20, 10, 5, 2]))
+print("Elapsed time: %.2f" % (perf_counter() - t_beg) + " s")
+t_beg = perf_counter()
+area_frac_approx = polygon_inters_approx(lon_edge, lat_edge,
+                                         polygon_it,
+                                         num_samp=5)
+print("Elapsed time: %.2f" % (perf_counter() - t_beg) + " s")
+
+# Plot
+map_ext = np.array([5.75, 10.70, 45.65, 47.9])  # [degree]
+fig = plt.figure(figsize=(6.5, 9.0))
+gs = gridspec.GridSpec(1, 2, left=0.1, bottom=0.1, right=0.9, top=0.9,
+                       hspace=0.05, wspace=0.05, width_ratios=[1, 0.05])
+ax = plt.subplot(gs[0], projection=ccrs.PlateCarree())
+ax.set_facecolor("lightgrey")
+# data_plot = np.ma.masked_where(area_frac_exact == 0.0, area_frac_exact)
+data_plot = np.ma.masked_where(area_frac_approx == 0.0, area_frac_approx)
+plt.pcolormesh(lon_edge, lat_edge, data_plot, cmap=cmap, norm=norm,
+               transform=ccrs.PlateCarree())
+ax.add_feature(cfeature.COASTLINE, edgecolor="black", ls="-", lw=1.0)
+ax.add_feature(cfeature.BORDERS, edgecolor="black", ls="-", lw=1.0)
+ax.set_aspect("auto")
+poly_plot = polygon2patch(polygon_it, facecolor="none", edgecolor="red",
+                          lw=2.5, transform=ccrs.PlateCarree())
+ax.add_collection(poly_plot)
+ax.set_extent(extent, crs=ccrs.PlateCarree())
+plt.title("Grid cell fraction within boundary [-]", fontsize=12,
+          fontweight="bold", y=1.01)
+ax = plt.subplot(gs[1])
+cb = mpl.colorbar.ColorbarBase(ax, cmap=cmap, norm=norm,
+                               ticks=ticks, orientation="vertical")
+
+# Check agreement between exact and approximate solution
+dev_abs = np.abs(area_frac_approx - area_frac_exact)
+print("Maximal absolute deviation: %.3f" % np.max(dev_abs))
+print("99.99 percentile of absolute deviation: %.3f"
+      % np.percentile(dev_abs, 99.99))
 
 ###############################################################################
 # Test function 'polygon_rectangular'

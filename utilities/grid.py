@@ -6,6 +6,7 @@ import numpy as np
 from shapely.geometry import Polygon
 import shapely
 import shapely.vectorized
+from shapely.geometry import Polygon, MultiPolygon
 
 
 # -----------------------------------------------------------------------------
@@ -195,8 +196,8 @@ def polygon_inters_exact(x_edge, y_edge, polygon, agg_cells=np.array([])):
     y_edge : ndarray
         Array (two-dimensional) with y-coordinates of grid cell edges
         [arbitrary]
-    polygon : shapely.geometry.polygon.Polygon
-        Shapely polygon [arbitrary]
+    polygon : shapely.geometry.*.Polygon or MultiPolygon
+        Shapely geometry [arbitrary]
     agg_cells : ndarray of int, optional
         Array with decreasing integers. The values determine the
         aggregation of grid cells into blocks for processing, which can
@@ -214,8 +215,9 @@ def polygon_inters_exact(x_edge, y_edge, polygon, agg_cells=np.array([])):
         raise TypeError("Input arrays must be two-dimensional")
     if x_edge.shape != y_edge.shape:
         raise TypeError("Inconsistent shapes of input arrays")
-    if not isinstance(polygon, shapely.geometry.polygon.Polygon):
-        raise TypeError("'polygon' has incorrect type")
+    if not (isinstance(polygon, Polygon) or isinstance(polygon, MultiPolygon)):
+        raise ValueError("Input geometry is not a shapely polygon "
+                         + "or multipolygon")
     if (agg_cells.size > 0) and \
             (not issubclass(agg_cells.dtype.type, np.integer)):
         raise TypeError("'agg_cells' must be an integer array")
@@ -280,7 +282,7 @@ def polygon_inters_exact(x_edge, y_edge, polygon, agg_cells=np.array([])):
 def polygon_inters_approx(x_edge, y_edge, polygon, num_samp=1):
     """Compute area fractions of grid cells located inside a polygon.
     Approximate method in which intersecting areas are derived by checking
-    points within the grid cells (one ore multiple sampling). Assume plane
+    points within the grid cells (single or multiple sampling). Assume plane
     (Euclidean) geometry.
 
     Parameters
@@ -291,8 +293,8 @@ def polygon_inters_approx(x_edge, y_edge, polygon, num_samp=1):
     y_edge : ndarray
         Array (one- or two-dimensional) with y-coordinates of grid cell edges
         [arbitrary]
-    polygon : shapely.geometry.polygon.Polygon
-        Shapely polygon [arbitrary]
+    polygon : shapely.geometry.*.Polygon or MultiPolygon
+        Shapely geometry [arbitrary]
     num_samp : int, optional
         Number of evenly distributed point-samples within a grid cell along
         one dimension. With e.g. 'num_samp = 5', 5 x 5 = 25 point locations are
@@ -306,15 +308,15 @@ def polygon_inters_approx(x_edge, y_edge, polygon, num_samp=1):
     # Check input arguments
     if len(x_edge.shape) != 1 or len(y_edge.shape) != 1:
         raise TypeError("Input arrays must be one-dimensional")
-    if not isinstance(polygon, shapely.geometry.polygon.Polygon):
-        raise TypeError("'polygon' has incorrect type")
+    if not (isinstance(polygon, Polygon) or isinstance(polygon, MultiPolygon)):
+        raise ValueError("Input geometry is not a shapely polygon "
+                         + "or multipolygon")
     if (num_samp < 1) or (num_samp > 100):
         raise ValueError("Sampling number must be in the range [1, 100]")
 
     # Intersect grid cells with polygon
     if num_samp == 1:  # no sub-sampling
 
-        print("Sample centre of grid cells")
         x_cent = x_edge[:-1] + np.diff(x_edge) / 2.0
         y_cent = y_edge[:-1] + np.diff(y_edge) / 2.0
         area_frac = shapely.vectorized.contains(
@@ -322,8 +324,6 @@ def polygon_inters_approx(x_edge, y_edge, polygon, num_samp=1):
 
     else:  # sub-sampling
 
-        print("Sample " + str(num_samp ** 2) + " evenly distributed "
-              + "locations within the grid cells")
         x_temp = np.linspace(x_edge[0], x_edge[-1],
                              (x_edge.size - 1) * num_samp + 1)
         xp = x_temp[0:None:num_samp]
@@ -348,7 +348,7 @@ def polygon_inters_approx(x_edge, y_edge, polygon, num_samp=1):
 # -----------------------------------------------------------------------------
 
 def polygon_rectangular(box, spacing=0.01):
-    """Create rectangular shapely polygon with specified verticies spacing.
+    """Create rectangular shapely polygon with specified vertices spacing.
 
     Parameters
     ----------
@@ -357,7 +357,7 @@ def polygon_rectangular(box, spacing=0.01):
         of rectangular polygon [arbitrary]
 
     spacing : int, optional
-        Verticies spacing (approximate) [arbitrary]
+        Vertices spacing (approximate) [arbitrary]
 
     Returns
     -------
@@ -375,11 +375,11 @@ def polygon_rectangular(box, spacing=0.01):
 
     # Intersect grid cells with polygon
     num_x = round((box[2] - box[0]) / spacing) + 1
-    if (num_x < 2):
+    if num_x < 2:
         print("Warning: Invalid number of vertices in x-direction. Reset to 2")
         num_x = 2
     num_y = round((box[3] - box[1]) / spacing) + 1
-    if (num_y < 2):
+    if num_y < 2:
         print("Warning: Invalid number of vertices in y-direction. Reset to 2")
         num_y = 2
 

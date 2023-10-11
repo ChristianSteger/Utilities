@@ -100,7 +100,7 @@ for i in coord_sys:
     plt.figure()
     ax = plt.axes(projection=i)
     poly_plot = polygon2patch(polygon_it, facecolor="black", edgecolor="blue",
-                              lw=1.5, alpha=0.5, transform=ccrs.PlateCarree())
+                              lw=3.5, alpha=0.5, transform=ccrs.PlateCarree())
     ax.add_collection(poly_plot)
     ax.coastlines(resolution="10m")
     gl = ax.gridlines(crs=ccrs.PlateCarree(),
