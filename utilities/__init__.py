@@ -1,3 +1,4 @@
+from . import download
 from . import grid
 from . import miscellaneous
 from . import plot

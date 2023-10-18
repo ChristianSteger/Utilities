@@ -13,7 +13,7 @@ First, ensure that all required Python packages are available in the environment
 The essential packages are installed with
 
 ```bash
-conda install -c conda-forge numpy matplotlib shapely netcdf4
+conda install -c conda-forge numpy matplotlib shapely netcdf4 requests tqdm
 ```
 
 and the optional ones with
@@ -31,6 +31,11 @@ python -m pip install .
 ```
 
 # Functions
+
+## Download
+Functions related to downloading files from the Web:
+- **download_file()**: Download file from URL and show progress.
+- **unzip_file()**: Unzip file.
 
 ## Grid
 Functions related to regular climate model grids:
