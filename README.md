@@ -51,7 +51,7 @@ Functions related to plotting with Matplotlib:
 - **truncate_colormap()**: Truncate colormap to specific range between [0.0, 1.0].
 - **polygon2patch()**: Convert Shapely (multi-)polygon to Matplotlib PatchCollection.
 - **naturalearth_background()**: Add (**high-resolution**) Natural Earth raster feature to plot.
-![Alt text](https://github.com/ChristianSteger/Media/blob/master/Utilities/Alps.png?raw=true "Output from test_grid.py")
+![Alt text](https://github.com/ChristianSteger/Media/blob/master/Utilities/Alps.png?raw=true "Output from test_plot.py")
 
 ## Remap
 Functions related to remapping gridded data with [CDO](https://code.mpimet.mpg.de/projects/cdo/): 
