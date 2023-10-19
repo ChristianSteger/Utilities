@@ -4,7 +4,7 @@ Various utilities for processing and plotting climate model data with Python. *G
 # Package dependencies
 
 The following Python packages are required to run Utilities: NumPy, Matplotlib, Shapely and netcdf4.
-Running the example and the tests requires the additional packages Xarray, pyproj, cartopy and Fiona.
+Running the example and the tests requires the additional packages Xarray, pyproj and Fiona.
 The *Remap* functions require [CDO](https://code.mpimet.mpg.de/projects/cdo/) to be installed and to be available in the terminal.
 
 # Installation
@@ -13,13 +13,13 @@ First, ensure that all required Python packages are available in the environment
 The essential packages are installed with
 
 ```bash
-conda install -c conda-forge numpy matplotlib shapely netcdf4 requests tqdm
+conda install -c conda-forge numpy matplotlib shapely netcdf4 requests tqdm cartopy pyinterp
 ```
 
 and the optional ones with
 
 ```bash
-conda install -c conda-forge xarray pyproj cartopy fiona
+conda install -c conda-forge xarray pyproj fiona
 ```
 
 The Utilities package can then be installed with:
@@ -50,7 +50,7 @@ Functions related to regular climate model grids:
 Functions related to plotting with Matplotlib:
 - **truncate_colormap()**: Truncate colormap to specific range between [0.0, 1.0].
 - **polygon2patch()**: Convert Shapely (multi-)polygon to Matplotlib PatchCollection.
-- **naturalearth_background()**: Add Natural Earth raster feature as background to plot.
+- **naturalearth_background()**: Add (**high-resolution**) Natural Earth raster feature to plot.
 ![Alt text](https://github.com/ChristianSteger/Media/blob/master/Utilities/Alps.png?raw=true "Output from test_grid.py")
 
 ## Remap

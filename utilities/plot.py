@@ -163,7 +163,7 @@ def _set_path_data(path):
 
 def naturalearth_background(axis, image_name="shaded_relief_basic",
                             image_res="medium", interp_res=(1000, 1000)):
-    """Add Natural Earth raster feature as background to plot.
+    """Add (high-resolution) Natural Earth raster feature to plot.
 
     Parameters
     ----------
