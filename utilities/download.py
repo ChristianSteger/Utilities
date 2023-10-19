@@ -5,7 +5,6 @@
 import os
 from tqdm import tqdm
 import requests
-import zipfile
 
 
 # -----------------------------------------------------------------------------
@@ -26,7 +25,8 @@ def download_file(file_url, path_local):
 
     # Download file
     path_local = os.path.join(path_local, "")  # ensure that path ends with "/"
-    response = requests.get(file_url, stream=True, headers={"User-Agent": "XY"})
+    response = requests.get(file_url, stream=True,
+                            headers={"User-Agent": "XY"})
     if response.ok:
         total_size_in_bytes = int(response.headers.get("content-length", 0))
         block_size = 1024 * 10
@@ -41,28 +41,3 @@ def download_file(file_url, path_local):
             raise ValueError("Inconsistency in file size")
     else:
         raise ValueError("URL response erroneous")
-
-
-# -----------------------------------------------------------------------------
-
-def unzip_file(file, remove_zip=False):
-    """Unzip file.
-
-    Parameters
-    ----------
-    file : str
-        File URL
-    remove_zip : bool
-        Option to remove original zipped file"""
-
-    # Check input arguments
-    if not os.path.isfile(file):
-        raise FileExistsError("File does not exist")
-    if not file.endswith(".zip"):
-        raise ValueError("File ending is not '.zip'")
-
-    # Unzip file
-    with zipfile.ZipFile(file, "r") as zip_ref:
-        zip_ref.extractall(file[:-4])
-    if remove_zip:
-        os.remove(file)

@@ -35,7 +35,6 @@ python -m pip install .
 ## Download
 Functions related to downloading files from the Web:
 - **download_file()**: Download file from URL and show progress.
-- **unzip_file()**: Unzip file.
 
 ## Grid
 Functions related to regular climate model grids:
@@ -51,6 +50,8 @@ Functions related to regular climate model grids:
 Functions related to plotting with Matplotlib:
 - **truncate_colormap()**: Truncate colormap to specific range between [0.0, 1.0].
 - **polygon2patch()**: Convert Shapely (multi-)polygon to Matplotlib PatchCollection.
+- **naturalearth_background()**: Add Natural Earth raster feature as background to plot.
+![Alt text](https://github.com/ChristianSteger/Media/blob/master/Utilities/Alps.png?raw=true "Output from test_grid.py")
 
 ## Remap
 Functions related to remapping gridded data with [CDO](https://code.mpimet.mpg.de/projects/cdo/): 

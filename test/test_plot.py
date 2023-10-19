@@ -11,8 +11,11 @@ from shapely.geometry import Polygon, MultiPolygon
 from cartopy.io import shapereader
 from shapely.geometry import shape
 import cartopy.crs as ccrs
+import cartopy.feature as cfeature
 import fiona
 from utilities.plot import truncate_colormap, polygon2patch
+from utilities.plot import naturalearth_background
+from utilities.plot import _get_path_data, _set_path_data
 
 mpl.style.use("classic")
 
@@ -112,3 +115,91 @@ for i in coord_sys:
     gl.top_labels = False
     gl.right_labels = False
     plt.autoscale()
+
+###############################################################################
+# Test function 'naturalearth_background'
+###############################################################################
+
+# Default settings
+crs_map = ccrs.PlateCarree()
+plt.figure()
+ax = plt.axes(projection=crs_map)
+ax.set_extent((-13.0, 50.0, 30.0, 65.0), crs=crs_map)
+naturalearth_background(ax)
+ax.add_feature(cfeature.COASTLINE, edgecolor="black", ls="-", lw=0.8)
+ax.add_feature(cfeature.BORDERS, edgecolor="black", ls="-", lw=0.4)
+
+# Orthographic projection
+image_name = "cross_blended_hypso_with_relief_water_drains_and_ocean_bottom"
+crs_map = ccrs.Orthographic(central_longitude=10.0, central_latitude=47.0)
+plt.figure()
+ax = plt.axes(projection=crs_map)
+ax.set_global()
+naturalearth_background(ax, image_name=image_name, image_res="medium",
+                        interp_res=(4000, 4000))
+ax.add_feature(cfeature.COASTLINE, edgecolor="black", ls="-", lw=0.8)
+
+# Rotated coordinate system
+crs_map = ccrs.RotatedPole(pole_longitude=-170.0, pole_latitude=43.0)
+fig = plt.figure()
+ax = plt.axes(projection=crs_map)
+ax.set_extent((-9.0, 8.0, -6.0, 7.0), crs=crs_map)
+naturalearth_background(ax, image_name=image_name, image_res="high",
+                        interp_res=(5000, 5000))
+ax.add_feature(cfeature.COASTLINE, edgecolor="black", ls="-", lw=0.8)
+ax.add_feature(cfeature.BORDERS, edgecolor="black", ls="-", lw=0.4)
+fig.savefig("/Users/csteger/Desktop/Alps.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+
+# Stereographic projection
+crs_map = ccrs.Stereographic(central_latitude=90.0, central_longitude=0.0)
+plt.figure()
+ax = plt.axes(projection=crs_map)
+ax.set_extent((-3500_000.0, 3000_000.0, -3000_000.0, 2500_000.0),
+              crs=crs_map)
+naturalearth_background(ax, image_name=image_name, image_res="high",
+                        interp_res=(3000, 3000))
+ax.add_feature(cfeature.COASTLINE, edgecolor="black", ls="-", lw=0.8)
+ax.add_feature(cfeature.BORDERS, edgecolor="black", ls="-", lw=0.4)
+
+# Test all images
+image_res = "low"  # "high", "medium", "low"
+keys = ("cross_blended_hypso",
+        "cross_blended_hypso_with_shaded_relief",
+        "cross_blended_hypso_with_shaded_relief_and_water",
+        "cross_blended_hypso_with_shaded_relief_water_and_drainages",
+        "cross_blended_hypso_with_relief_water_drains_and_ocean_bottom",
+        "natural_earth_i",
+        "natural_earth_i_with_shaded_relief",
+        "natural_earth_i_with_shaded_relief_and_water",
+        "natural_earth_i_with_shaded_relief_water_and_drainages",
+        "natural_earth_ii",
+        "natural_earth_ii_with_shaded_relief",
+        "natural_earth_ii_with_shaded_relief_and_water",
+        "natural_earth_ii_with_shaded_relief_water_and_drainages",
+        "ocean_bottom",
+        "shaded_relief_basic",
+        "gray_earth_with_shaded_relief_and_hypsography",
+        "gray_earth_with_shaded_relief_hypsography_and_flat_water",
+        "gray_earth_with_shaded_relief_hypsography_and_ocean_bottom",
+        "gray_earth_with_shaded_relief_hypsography_ocean_bottom_and_drainages",
+        "manual_shaded_relief")
+for i in keys:
+    print((" " + i + " ").center(79, "-"))
+    try:
+        crs_map = ccrs.LambertConformal(central_longitude=10.0,
+                                        central_latitude=47.0)
+        plt.figure()
+        ax = plt.axes(projection=crs_map)
+        ax.set_extent((-500_000.0, 500_000.0, -500_000.0, 500_000.0),
+                      crs=crs_map)
+        naturalearth_background(ax, image_name=i,
+                                image_res=image_res, interp_res=(1000, 1000))
+        ax.add_feature(cfeature.COASTLINE, edgecolor="black", ls="-", lw=0.8)
+        ax.add_feature(cfeature.BORDERS, edgecolor="black", ls="-", lw=0.4)
+    except ValueError:
+        print("Resolution not available for selected image")
+
+# Check functions to set/get data path
+# _get_path_data()
+# _set_path_data("/Users/csteger/Desktop")
