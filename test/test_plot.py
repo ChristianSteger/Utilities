@@ -7,15 +7,18 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import PIL
 from shapely.geometry import Polygon, MultiPolygon
-from cartopy.io import shapereader
 from shapely.geometry import shape
+from cartopy.io import shapereader
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import fiona
 from utilities.plot import truncate_colormap, polygon2patch
 from utilities.plot import naturalearth_background
 from utilities.plot import _get_path_data, _set_path_data
+from utilities.plot import individual_background
+from utilities.download import download_file
 
 mpl.style.use("classic")
 
@@ -203,3 +206,83 @@ for i in keys:
 # Check functions to set/get data path
 # _get_path_data()
 # _set_path_data("/Users/csteger/Desktop")
+
+###############################################################################
+# Test function 'individual_background'
+###############################################################################
+
+# Create temporary folder for images
+path_images = "/Users/csteger/Desktop/Temp/"
+os.mkdir(path_images)
+
+# Download images automatically
+# (source: https://visibleearth.nasa.gov/collection/1484/blue-marble)
+files_url = (
+    "https://eoimages.gsfc.nasa.gov/images/imagerecords/147000/147190/"
+    + "eo_base_2020_clean_geo.tif",
+    "https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73963/"
+    + "gebco_08_rev_bath_3600x1800_color.jpg",
+    "https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73963/"
+    + "gebco_08_rev_bath_21600x10800.png",
+    "https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73909/"
+    + "world.topo.bathy.200412.3x5400x2700.png")
+for file_url in files_url:
+    download_file(file_url, path_images)
+
+# Download images manually
+# (source: https://neo.gsfc.nasa.gov)
+# - Sea Surface Temperature (MODIS, 2002+), PNG, 3600 x 1800 -> SST.png
+# - Blue Marble: Next Generation, PNG, 3600 x 1800 -> Blue_Marble.png
+
+PIL.Image.MAX_IMAGE_PIXELS = 233280000
+
+# -----------------------------------------------------------------------------
+# Greyscale image
+# -----------------------------------------------------------------------------
+
+# Load image
+file_image = path_images + "gebco_08_rev_bath_21600x10800.png"
+image = plt.imread(file_image)
+print(image.shape)
+print(np.max(image))
+image = (image[:, :, 0] * 255).astype(np.uint8)  # scale values to [0, 255]
+
+# Plot image
+crs_map = ccrs.Orthographic(central_longitude=10.0, central_latitude=47.0)
+plt.figure()
+ax = plt.axes(projection=crs_map)
+ax.set_global()
+individual_background(ax, image, interp_res=(3000, 3000))
+ax.add_feature(cfeature.COASTLINE, edgecolor="black", ls="-", lw=0.8)
+
+# -----------------------------------------------------------------------------
+# Colour image
+# -----------------------------------------------------------------------------
+
+# Image information (scaling, drop array)
+images = {
+    "Blue_Marble.png": (True, False),
+    "SST.png": (True, True),
+    "eo_base_2020_clean_geo.tif": (False, False),
+    "gebco_08_rev_bath_3600x1800_color.jpg": (False, False),
+    "world.topo.bathy.200412.3x5400x2700.png": (True, False)
+}
+
+# Loop through images
+for i in images:
+
+    # Load image
+    image = plt.imread(path_images + i)
+    if images[i][0]:
+        image = (image * 255).astype(np.uint8)  # scale values to [0, 255]
+    if images[i][1]:
+        image = image[:, :, :-1]  # drop array with constant values
+
+    # Plot image
+    crs_map = ccrs.Orthographic(central_longitude=10.0, central_latitude=47.0)
+    plt.figure(figsize=(8, 8))
+    ax = plt.axes(projection=crs_map)
+    ax.set_global()
+    individual_background(ax, image, interp_res=(3000, 3000))
+    ax.add_feature(cfeature.COASTLINE, edgecolor="black", ls="-", lw=0.8)
+    print("Image " + i + " plotted")

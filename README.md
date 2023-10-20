@@ -52,6 +52,8 @@ Functions related to plotting with Matplotlib:
 - **polygon2patch()**: Convert Shapely (multi-)polygon to Matplotlib PatchCollection.
 - **naturalearth_background()**: Add (**high-resolution**) Natural Earth raster feature to plot.
 ![Alt text](https://github.com/ChristianSteger/Media/blob/master/Utilities/Alps.png?raw=true "Output from test_plot.py")
+- **individual_background()**: Add individual image to plot. The image must cover the entire globe in a Plate Carree projection.
+![Alt text](https://github.com/ChristianSteger/Media/blob/master/Utilities/Globes.png?raw=true "Output from test_plot.py")
 
 ## Remap
 Functions related to remapping gridded data with [CDO](https://code.mpimet.mpg.de/projects/cdo/): 

@@ -395,3 +395,88 @@ def naturalearth_background(axis, image_name="shaded_relief_basic",
     else:
         axis.imshow(np.flipud(image_ip), extent=extent_map, transform=crs_map,
                     cmap="grey", vmin=0, vmax=255)
+
+
+# -----------------------------------------------------------------------------
+
+def individual_background(axis, image, interp_res=(1000, 1000)):
+    """Add individual image to plot. The image must cover the entire globe in
+    a Plate Carree projection.
+
+    Parameters
+    ----------
+    axis : cartopy.mpl.geoaxes.GeoAxes
+        Cartopy axis
+    image : ndarray of uint8
+        Image as two- or three-dimensional array with values between 0 and 255
+        (y, x, (3: RGB))
+    interp_res : tuple of int
+        Number of interpolation nodes in y- and x-direction"""
+
+    # Check input arguments
+    if not isinstance(axis, cartopy.mpl.geoaxes.GeoAxes):
+        raise TypeError("'axis' must be of type 'cartopy.mpl.geoaxes.GeoAxes'")
+    if (not isinstance(image, np.ndarray)
+            or (image.dtype != np.dtype("uint8"))
+            or (not 2 <= image.ndim <= 3)):
+        raise TypeError("'image' must be an array of type 'uint8' with "
+                        + "2 or 3 dimensions")
+    if ((not isinstance(interp_res, tuple)) or (len(interp_res) != 2)
+            or (any([not isinstance(i, int) for i in interp_res]))):
+        raise TypeError("'interp_res' must be an integer tuple with length 2")
+    if any([not (100 <= i <= 21_600) for i in interp_res]):
+        raise ValueError("'interp_res' values must be between 100 and 21_600")
+
+    # Flip image
+    image = np.flipud(image)
+
+    # Create geographic coordinates
+    extent = (-180.0, 180.0, -90.0, 90.0)
+    dlon_h = (extent[1] - extent[0]) / (float(image.shape[1]) * 2.0)
+    lon = np.linspace(extent[0] + dlon_h, extent[1] - dlon_h, image.shape[1])
+    dlat_h = (extent[3] - extent[2]) / (float(image.shape[0]) * 2.0)
+    lat = np.linspace(extent[2] + dlat_h, extent[3] - dlat_h, image.shape[0])
+    crs_image = ccrs.PlateCarree()
+
+    # Add data rows at poles (-90, +90 degree)
+    lat_add = np.concatenate((np.array([-90.0]), lat, np.array([+90.0])))
+    image_add = np.concatenate((image[:1, ...], image, image[-1:, ...]),
+                               axis=0)
+    x_axis = pyinterp.Axis(lon, is_circle=True)
+    y_axis = pyinterp.Axis(lat_add)
+
+    # Interpolate image to map
+    extent_map = axis.axis()
+    crs_map = axis.projection
+    x_ip = np.linspace(extent_map[0], extent_map[1], interp_res[1])
+    y_ip = np.linspace(extent_map[2], extent_map[3], interp_res[0])
+    coord = crs_image.transform_points(crs_map, *np.meshgrid(x_ip, y_ip))
+    lon_ip = coord[:, :, 0]
+    lat_ip = coord[:, :, 1]
+    mask = np.isfinite(lon_ip)
+    # ------------------------------ colour image -----------------------------
+    if image.ndim == 3:
+        image_ip = np.zeros(mask.shape + (3,), dtype=np.uint8)
+        for i in range(3):
+            grid = pyinterp.Grid2D(x_axis, y_axis, image_add[:, :, i]
+                                   .transpose())
+            data_ip = pyinterp.bivariate(
+                grid, lon_ip[mask], lat_ip[mask],
+                interpolator="bilinear", bounds_error=True, num_threads=0)
+            image_ip[:, :, i][mask] = data_ip
+    # ---------------------------- greyscale image ----------------------------
+    else:
+        image_ip = np.zeros(mask.shape, dtype=np.uint8)
+        grid = pyinterp.Grid2D(x_axis, y_axis, image_add.transpose())
+        data_ip = pyinterp.bivariate(
+            grid, lon_ip[mask], lat_ip[mask],
+            interpolator="bilinear", bounds_error=True, num_threads=0)
+        image_ip[mask] = data_ip
+    # -------------------------------------------------------------------------
+
+    # Add image to axis
+    if image.ndim == 3:
+        axis.imshow(np.flipud(image_ip), extent=extent_map, transform=crs_map)
+    else:
+        axis.imshow(np.flipud(image_ip), extent=extent_map, transform=crs_map,
+                    cmap="grey", vmin=0, vmax=255)
