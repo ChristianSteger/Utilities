@@ -7,6 +7,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import matplotlib.gridspec as gridspec
 import PIL
 from shapely.geometry import Polygon, MultiPolygon
 from shapely.geometry import shape
@@ -286,3 +287,26 @@ for i in images:
     individual_background(ax, image, interp_res=(3000, 3000))
     ax.add_feature(cfeature.COASTLINE, edgecolor="black", ls="-", lw=0.8)
     print("Image " + i + " plotted")
+
+# Create example plot
+images_sel = ("Blue_Marble.png",
+              "gebco_08_rev_bath_3600x1800_color.jpg",
+              "SST.png")
+crs_map = ccrs.Orthographic(central_longitude=10.0, central_latitude=47.0)
+fig = plt.figure(figsize=(18.0, 5.0))  # width, height
+gs = gridspec.GridSpec(1, 3, left=0.02, bottom=0.02, right=0.98,
+                       top=0.98, hspace=0.1, wspace=-0.2,
+                       width_ratios=[1.0, 1.0, 1.0])
+for ind_i, i in enumerate(images_sel):
+    image = plt.imread(path_images + i)
+    if images[i][0]:
+        image = (image * 255).astype(np.uint8)  # scale values to [0, 255]
+    if images[i][1]:
+        image = image[:, :, :-1]  # drop array with constant values
+    ax = plt.subplot(gs[ind_i], projection=crs_map)
+    ax.set_global()
+    individual_background(ax, image, interp_res=(3000, 3000))
+    ax.add_feature(cfeature.COASTLINE, edgecolor="black", ls="-", lw=0.8)
+    print("Image " + i + " plotted")
+fig.savefig("/Users/csteger/Desktop/Globes.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
